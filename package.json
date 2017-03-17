@@ -1,0 +1,27 @@
+{
+  "name": "osx-touchbar-parrots-on-steroids",
+  "version": "0.0.1",
+  "description": "Use Electron to display Party Parrots on steroids on MacBooks Pro Touch Bar Edit",
+  "main": "src/party.js",
+  "engines": {
+    "node" : ">=5.6"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^1.6.3"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "./test/test.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DariuszMusielak/osx-touchbar-parrots-on-steroids.git"
+  },
+  "author": "DariuszMusielak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DariuszMusielak/osx-touchbar-parrots-on-steroids/issues"
+  },
+  "homepage": "https://github.com/DariuszMusielak/osx-touchbar-parrots-on-steroids#readme"
+}
