@@ -20,3 +20,16 @@ It displays Party Parrots on MacBook's Pro Touch Bar using Electron. Because we 
 `npm start` to run Party Parrots on MacBook's Pro fanhttps://media.giphy.com/media/2KZR91TA1AubK/giphy.gifcy Touch Bar and serve its true purpose
 
 `npm test` to test parrots
+
+# Add new parrot! Or something else :)
+
+1. Go to `src/parrot/assers/` and create new directory with name for your Gif. (name of this directory will be dispalyed on button)
+2. Prepare frames for you own Gif.
+  - Format: PNG with transparent background,
+  - Resolution: 128x128
+  - File name: `00X.png` when `X` is a number starting from 1. (001.png, 002.png, ... , 0010.png, 0011.png)
+4. Put frames in your new directory.
+5. Prepare `cover_image.png` and put it in the same folder.
+6. Run application and play with your awesome Gif.
+
+## Do you want to share your awersome Gif? Do it! Just create pull request with your changes.
