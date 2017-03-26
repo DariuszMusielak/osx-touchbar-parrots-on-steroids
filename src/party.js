@@ -21,9 +21,10 @@ let touchBar = null;
 let slider = null;
 let sliderBtn = null;
 
-let popoverSliderBtn = null;
-let popoverTouchBar = null;
-let popoverSlider = null;
+let reselectSliderBtn = null;
+let reselectTouchBar = null;
+let reselectSlider = null;
+let reselectParrotBtn = null;
 
 let window;
 
@@ -51,21 +52,33 @@ const initSlider = () => {
 }
 
 const initTouchBar = () => { return [sliderBtn, slider]; }
-const initTouchBarWithParrots = () => { return [ popover, stopBtn, slowerBtn, fasterBtn, parrots[0], parrots[1] ]; }
+const initTouchBarWithParrots = () => { return [ reselectParrotBtn, stopBtn, slowerBtn, fasterBtn, parrots[0], parrots[1] ]; }
 
-
-const initPopover = () => {
-  initPopoverSliderBtn();
-  initPopoverSlider();
-  initPopoverTouchBar();
-
-  popover = new TouchBarPopover({ label: 'next parrot?', items: popoverTouchBar, showCloseButton: true })
+const initReselectParrotBtn = () => {
+  reselectParrotBtn = new TouchBarButton({
+    label: 'next parrot?',
+    backgroundColor: '#000',
+    click: () => {
+      window.setTouchBar(reselectTouchBar);
+      clearTimeout(parrotTimeout);
+      animateParrots();
+    }
+  })
 }
 
-const initPopoverTouchBar = () => { popoverTouchBar = [popoverSliderBtn, popoverSlider]; }
+const initReselect = () => {
+  initReselectParrotBtn();
+  initReselectSliderBtn();
+  initReselectSlider();
+  initReselectTouchBar();
 
-const initPopoverSliderBtn = () => {
-  popoverSliderBtn = new TouchBarButton({
+  popover = new TouchBarPopover({ label: 'next parrot?', items: reselectTouchBar, showCloseButton: true })
+}
+
+const initReselectTouchBar = () => { reselectTouchBar = [reselectSliderBtn, reselectSlider]; }
+
+const initReselectSliderBtn = () => {
+  reselectSliderBtn = new TouchBarButton({
     label: 'Move slider to choose parrot!',
     backgroundColor: '#000',
     click: () => {
@@ -75,16 +88,16 @@ const initPopoverSliderBtn = () => {
   })
 }
 
-const initPopoverSlider = () => {
-  popoverSlider = new TouchBarSlider({
+const initReselectSlider = () => {
+  reselectSlider = new TouchBarSlider({
     value: 1,
     minValue: 0,
     maxValue: parrotsAmount,
     change: (newValue) => {
       if(newValue == parrotsAmount) { newValue--; }
       parrotDisplayType = parrotTypes[newValue];
-      popoverSliderBtn.icon = parrotConfigs[parrotDisplayType]['coverImage'];
-      popoverSliderBtn.label = parrotDisplayType;
+      reselectSliderBtn.icon = parrotConfigs[parrotDisplayType]['coverImage'];
+      reselectSliderBtn.label = parrotDisplayType;
     }
   })
 }
@@ -170,7 +183,7 @@ app.once('ready', () => {
     initParrots();
     initSlider();
     touchBar = new TouchBar(initTouchBar());
-    initPopover()
+    initReselect()
     window.loadURL(`file://${path.join(__dirname, '/index.html')}`);
     window.setTouchBar(touchBar);
   })
