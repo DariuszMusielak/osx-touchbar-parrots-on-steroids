@@ -54,17 +54,15 @@ const initTouchBar = () => { return [sliderBtn, slider]; }
 const initTouchBarWithParrots = () => { return [ popover, stopBtn, slowerBtn, fasterBtn, parrots[0], parrots[1] ]; }
 
 
-
 const initPopover = () => {
   initPopoverSliderBtn();
   initPopoverSlider();
-  popoverTouchBar = initPopoverTouchBar();
+  initPopoverTouchBar();
 
   popover = new TouchBarPopover({ label: 'next parrot?', items: popoverTouchBar, showCloseButton: true })
 }
 
-
-const initPopoverTouchBar = () => { return [popoverSliderBtn, popoverSlider]; }
+const initPopoverTouchBar = () => { popoverTouchBar = [popoverSliderBtn, popoverSlider]; }
 
 const initPopoverSliderBtn = () => {
   popoverSliderBtn = new TouchBarButton({
@@ -143,31 +141,31 @@ const updateParrotsFrames = () => {
 
 const animateParrots = () => { updateParrotsFrames() };
 
-const parrotsDirectories = () => {
-  const dirPromise = new Promise( (resolve, reject) => {
+const parrotsLoader = () => {
+  const loaderPromise = new Promise( (resolve, reject) => {
     fs.readdir(assetsFolderPath, (err, files) => {
-      const dirAmount = files.length;
+      const dirTotalCount = files.length;
       let dirCounter = 0;
-      files.forEach(directoryName => {
-        let backgroundsFolderPath = `${assetsFolderPath}${directoryName}/`;
-        fs.readdir(backgroundsFolderPath, (err, files) => {
-          parrotTypes.push(directoryName)
-          parrotConfigs[directoryName] = {
-            coverImage: `${backgroundsFolderPath}cover_image.png`, framesAmount: (files.length - 1)
+      files.forEach(parrotDirName => {
+        let parrotAssetsDirPath = `${assetsFolderPath}${parrotDirName}/`;
+        fs.readdir(parrotAssetsDirPath, (err, files) => {
+          parrotTypes.push(parrotDirName)
+          parrotConfigs[parrotDirName] = {
+            coverImage: `${parrotAssetsDirPath}cover_image.png`, framesAmount: (files.length - 1)
           }
           dirCounter = dirCounter + 1;
-          if(dirCounter == dirAmount){ resolve() }
+          if(dirCounter == dirTotalCount){ resolve() }
         })
       });
     })
   })
 
-  return dirPromise;
+  return loaderPromise;
 }
 
 app.once('ready', () => {
   window = new BrowserWindow({ width: 200, height: 200 });
-  parrotsDirectories().then( () => {
+  parrotsLoader().then( () => {
     parrotsAmount = Object.keys(parrotConfigs).length;
     initParrots();
     initSlider();
