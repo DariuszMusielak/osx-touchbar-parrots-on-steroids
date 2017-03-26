@@ -1,73 +1,106 @@
+const fs = require('fs');
 const path = require('path');
 const {app, BrowserWindow, TouchBar} = require('electron');
 
-const {TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarSlider} = TouchBar
+const {TouchBarLabel, TouchBarButton, TouchBarSpacer, TouchBarSlider, TouchBarPopover} = TouchBar;
 
 const numOfParrotsToDisplay = 2;
 const parrots = [];
 let parrotsShouldDance = true;
 let parrotsSpeed = 30;
-let parrotTimeout = ''
-
+let parrotTimeout = '';
 let parrotDisplayType = false;
+let parrotsAmount = 0;
+const assetsFolderPath = path.join(__dirname, '/parrot/assets/');
+let parrotConfigs = {};
+let parrotFrame = 1;
+let parrotTypes = [];
 
-let parrotConfig = {
-  dance: { coverImage: '005.png', framesAmount: 9 },
-  run:   { coverImage: '006.png', framesAmount: 19 }
-}
+let touchBar = null;
+
+let slider = null;
+let sliderBtn = null;
+
+let popoverSliderBtn = null;
+let popoverTouchBar = null;
+let popoverSlider = null;
+
+let window;
 
 const initParrots = () => {
+  let backgroundsFolderPath = `${assetsFolderPath}${parrotDisplayType}/001.png`;
   for (let x = 0; x < numOfParrotsToDisplay; x++) {
-    parrots.push(new TouchBarButton({
-      icon: path.join(__dirname, `/parrot/${parrotDisplayType}/001.png`),
-      backgroundColor: '#000'
-    }));
+    parrots.push(new TouchBarButton({ icon: backgroundsFolderPath, backgroundColor: '#000' }));
   }
   return parrots;
 };
 
+const initSlider = () => {
+  initSliderBtn();
+  slider = new TouchBarSlider({
+    value: 1,
+    minValue: 0,
+    maxValue: parrotsAmount,
+    change: (newValue) => {
+      if(newValue == parrotsAmount) { newValue--; }
+      parrotDisplayType = parrotTypes[newValue];
+      sliderBtn.icon = parrotConfigs[parrotDisplayType]['coverImage'];
+      sliderBtn.label = parrotDisplayType;
+    }
+  })
+}
+
 const initTouchBar = () => { return [sliderBtn, slider]; }
+const initTouchBarWithParrots = () => { return [ popover, stopBtn, slowerBtn, fasterBtn, parrots[0], parrots[1] ]; }
 
-const initTouchBarWithParrots = () => {
-  initParrots();
-  return [ parrotBtn(), stopBtn, slowerBtn, fasterBtn, parrots[0], parrots[1] ];
+
+
+const initPopover = () => {
+  initPopoverSliderBtn();
+  initPopoverSlider();
+  popoverTouchBar = initPopoverTouchBar();
+
+  popover = new TouchBarPopover({ label: 'next parrot?', items: popoverTouchBar, showCloseButton: true })
 }
 
-const parrotBtn = () => {
-  if(parrotDisplayType == 'dance'){ return parrot_1; }else{ return parrot_2; }
+
+const initPopoverTouchBar = () => { return [popoverSliderBtn, popoverSlider]; }
+
+const initPopoverSliderBtn = () => {
+  popoverSliderBtn = new TouchBarButton({
+    label: 'Move slider to choose parrot!',
+    backgroundColor: '#000',
+    click: () => {
+      if (!parrotDisplayType){ return }
+      setNewTouchBar();
+    }
+  })
 }
 
-const parrot_1 = new TouchBarButton({
-  label: 'Run',
-  backgroundColor: '#000',
-  click: () => { parrotDisplayType = 'run'; setNewTouchBar(); }
-})
+const initPopoverSlider = () => {
+  popoverSlider = new TouchBarSlider({
+    value: 1,
+    minValue: 0,
+    maxValue: parrotsAmount,
+    change: (newValue) => {
+      if(newValue == parrotsAmount) { newValue--; }
+      parrotDisplayType = parrotTypes[newValue];
+      popoverSliderBtn.icon = parrotConfigs[parrotDisplayType]['coverImage'];
+      popoverSliderBtn.label = parrotDisplayType;
+    }
+  })
+}
 
-const parrot_2 = new TouchBarButton({
-  label: 'Dance',
-  backgroundColor: '#000',
-  click: () => { parrotDisplayType = 'dance'; setNewTouchBar(); }
-})
-
-const sliderBtn = new TouchBarButton({
-  label: 'Move slider to choose parrot!',
-  backgroundColor: '#000',
-  click: () => {
-    if (!parrotDisplayType){ return }
-    setNewTouchBar();
-  }
-})
-
-const slider = new TouchBarSlider({
-  value: 1,
-  minValue: 1,
-  maxValue: 3,
-  change: (newValue) => {
-    if (newValue == 1) { parrotDisplayType = 'dance'; }else{ parrotDisplayType = 'run'; }
-    sliderBtn.icon = path.join(__dirname, `/parrot/${parrotDisplayType}/${parrotConfig[parrotDisplayType]['coverImage']}`);
-    sliderBtn.label = `${parrotDisplayType}`;
-  }
-})
+const initSliderBtn = () => {
+  sliderBtn = new TouchBarButton({
+    label: 'Move slider to choose parrot!',
+    backgroundColor: '#000',
+    click: () => {
+      if (!parrotDisplayType){ return }
+      setNewTouchBar();
+    }
+  })
+}
 
 const stopBtn = new TouchBarButton({
   label: '⏸',
@@ -94,18 +127,13 @@ const setNewTouchBar = () => {
   animateParrots();
 }
 
-const touchBar = new TouchBar(initTouchBar());
-
-let parrotFrame = 1;
-
 const updateParrotsFrames = () => {
-  if (parrotFrame > parrotConfig[parrotDisplayType].framesAmount + 1) {
+  if (parrotFrame > parrotConfigs[parrotDisplayType].framesAmount + 1) {
     parrotFrame = 1;
   } else {
     parrotFrame += 1;
   }
-
-  const parrotPath = path.join(__dirname, `/parrot/${parrotDisplayType}/00${parrotFrame}.png`);
+  const parrotPath = `${assetsFolderPath}${parrotDisplayType}/00${parrotFrame}.png`;
 
   for (let x = 0; x < numOfParrotsToDisplay; x++) {
     if(parrotsShouldDance) { parrots[x].icon = parrotPath; }
@@ -115,15 +143,39 @@ const updateParrotsFrames = () => {
 
 const animateParrots = () => { updateParrotsFrames() };
 
-let window;
+const parrotsDirectories = () => {
+  const dirPromise = new Promise( (resolve, reject) => {
+    fs.readdir(assetsFolderPath, (err, files) => {
+      const dirAmount = files.length;
+      let dirCounter = 0;
+      files.forEach(directoryName => {
+        let backgroundsFolderPath = `${assetsFolderPath}${directoryName}/`;
+        fs.readdir(backgroundsFolderPath, (err, files) => {
+          parrotTypes.push(directoryName)
+          parrotConfigs[directoryName] = {
+            coverImage: `${backgroundsFolderPath}cover_image.png`, framesAmount: (files.length - 1)
+          }
+          dirCounter = dirCounter + 1;
+          if(dirCounter == dirAmount){ resolve() }
+        })
+      });
+    })
+  })
+
+  return dirPromise;
+}
 
 app.once('ready', () => {
-    window = new BrowserWindow({
-        width: 200,
-        height: 200
-    });
+  window = new BrowserWindow({ width: 200, height: 200 });
+  parrotsDirectories().then( () => {
+    parrotsAmount = Object.keys(parrotConfigs).length;
+    initParrots();
+    initSlider();
+    touchBar = new TouchBar(initTouchBar());
+    initPopover()
     window.loadURL(`file://${path.join(__dirname, '/index.html')}`);
     window.setTouchBar(touchBar);
+  })
 })
 
 // Quit when all windows are closed and no other one is listening to this.
