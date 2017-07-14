@@ -23,7 +23,7 @@ It displays Party Parrots on MacBook's Pro Touch Bar using Electron. Because we 
 
 # Add new parrot! Or something else :)
 
-1. Go to `src/parrot/assers/` and create new directory with name for your Gif. (name of this directory will be dispalyed on button)
+1. Go to `src/parrot/assets/` and create new directory with name for your Gif. (name of this directory will be dispalyed on button)
 2. Prepare frames for you own Gif.
   - Format: PNG with transparent background,
   - Resolution: 128x128
