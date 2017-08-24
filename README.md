@@ -9,7 +9,7 @@ I found this awesome and decided to add some new features to original version [o
 
 ![alt tag](https://media.giphy.com/media/2KZR91TA1AubK/giphy.gif)
 
-Do you want new parrot? Just add them!
+Do you want a new parrot? Just add them!
 
 It displays Party Parrots on MacBook's Pro Touch Bar using Electron. Because we need Party Parrots everywhere and running parrots too!
 
@@ -17,13 +17,13 @@ It displays Party Parrots on MacBook's Pro Touch Bar using Electron. Because we 
 
 `npm install` to install all dependencies
 
-`npm start` to run Party Parrots on MacBook's Pro fanhttps://media.giphy.com/media/2KZR91TA1AubK/giphy.gifcy Touch Bar and serve its true purpose
+`npm start` to run Party Parrots on MacBook's Pro fan https://media.giphy.com/media/2KZR91TA1AubK/giphy.gifcy Touch Bar and serve its true purpose
 
 `npm test` to test parrots
 
 # Add new parrot! Or something else :)
 
-1. Go to `src/parrot/assets/` and create new directory with name for your Gif. (name of this directory will be dispalyed on button)
+1. Go to `src/parrot/assets/` and create new directory with name for your Gif. (name of this directory will be displayed on button)
 2. Prepare frames for you own Gif.
   - Format: PNG with transparent background,
   - Resolution: 128x128
@@ -32,4 +32,4 @@ It displays Party Parrots on MacBook's Pro Touch Bar using Electron. Because we 
 5. Prepare `cover_image.png` and put it in the same folder.
 6. Run application and play with your awesome Gif.
 
-## Do you want to share your awersome Gif? Do it! Just create pull request with your changes.
+## Do you want to share your awesome Gif? Do it! Just create pull request with your changes.
